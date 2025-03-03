@@ -2,3 +2,4 @@
 *.cer
 node_modules
 federat*.xml
+dist/

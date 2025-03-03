@@ -1,31 +1,28 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import fs from 'fs';
-import { AuthProvider, SamlAuthOptions } from './saml/saml.interface';
-import { AuthSamlStrategy } from './saml/saml.strategy';
-// import { AuthSamlStrategy } from 'general-utils-client';
-import { Strategy } from '@node-saml/passport-saml';
-// import { SAML } from '@node-saml/node-saml';
+import { AuthProvider, SamlAuthOptions } from '../saml/saml.interface';
+import { AuthSamlStrategy } from '../saml/saml.strategy';
 import session from 'express-session';
 
 // IdP acgnostic
 const MY_PRIVATE_KEY = fs.readFileSync('./private-key.pem', 'utf-8');
+const MY_2_ISSUER_ID = 'http://localhost';
 
 // Example using https://mocksaml.com/
-// const IDP_CERT_EXAMPLE = fs.readFileSync('apps/general-api/src/services/sso/idp_cert.pem', 'utf-8');
-// const ENTRY_EXAMPLE = 'https://mocksaml.com/api/saml/sso';
+const IDP_CERT_MOCK_SAML = fs.readFileSync('idp_cert.pem', 'utf-8');
+const ENTRY_MOCK_SAML = 'https://mocksaml.com/api/saml/sso';
 
 // Example using Microsoft Entra ID
-const MY_2_ISSUER_ID = 'http://localhost';
-const MY_2_ENTRY_POINT = 'https://login.microsoftonline.com/b2d1e7ea-1e49-484c-9d88-2ce66d74b426/saml2';
-const MY_2_IDP_CERT = fs.readFileSync('./test-saml-apps.pem', 'utf-8');
+// const MY_2_ENTRY_POINT = 'https://login.microsoftonline.com/b2d1e7ea-1e49-484c-9d88-2ce66d74b426/saml2';
+// const MY_2_IDP_CERT = fs.readFileSync('./test-saml-apps.pem', 'utf-8');
 
 const DEFAULT_OPTIONS = {
   issuer: MY_2_ISSUER_ID,
   callbackUrl: 'http://localhost:3005/auth-saml/callback',
-  entryPoint: MY_2_ENTRY_POINT,
+  entryPoint: ENTRY_MOCK_SAML,
   wantAssertionsSigned: true,
-  idpCert: MY_2_IDP_CERT,
+  idpCert: IDP_CERT_MOCK_SAML,
   privateKey: MY_PRIVATE_KEY,
   decryptionPvk: MY_PRIVATE_KEY,
   signatureAlgorithm: 'sha256',
@@ -33,6 +30,8 @@ const DEFAULT_OPTIONS = {
   wantAuthnResponseSigned: true,
   passReqToCallback: true,
 } as SamlAuthOptions;
+
+const SECRET_KEY = 'a-secret-key';
 
 const app = express();
 
@@ -49,7 +48,7 @@ app.use(passport.session());
 
 // passport strategy
 passport.use(new AuthSamlStrategy({
-  teamName: 'kfi',
+  teamName: 'kgs',
   strategyName: 'saml',
   authProvider: AuthProvider.MS_ENTRA_ID,
   samlOptions: DEFAULT_OPTIONS,
@@ -73,7 +72,7 @@ app.get('/',
     if (req.user) {
       const token = jwt.sign(
         { user: req.user },
-        'your-secret-key', // Use a secure secret key
+        SECRET_KEY, // Use a secure secret key
         { expiresIn: '8h' }
       );
       res.cookie('accessToken', token, { httpOnly: true, secure: true, maxAge: 8 * 60 * 60 * 1000 });
@@ -86,7 +85,7 @@ app.get('/',
       <body>
         <h1>Welcome to Client Apps</h1>
         <ul>
-          <li><a href="http://localhost/client-apps/apps-a?accessToken=${token}">App Space FE</a></li>
+          <li><a href="http://localhost:3006/client-apps-x/login?accessToken=${token}">App Space FE</a></li>
         </ul>
       </body>
       </html>

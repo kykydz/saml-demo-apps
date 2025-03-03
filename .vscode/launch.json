@@ -5,10 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Apps",
+      "name": "Debug Apps 3005",
       "type": "node",
       "request": "launch",
-      "args": ["${workspaceFolder}/server.ts"],
+      "args": ["${workspaceFolder}/app-space/server.ts"],
       "runtimeArgs": [
         "--nolazy",
         "-r",
@@ -20,6 +20,23 @@
       "cwd": "${workspaceFolder}",
       "outputCapture": "std",
       "envFile": "${workspaceFolder}/local.env"
-    }
+    },
+    {
+        "name": "Debug Apps 3006",
+        "type": "node",
+        "request": "launch",
+        "args": ["${workspaceFolder}/app-clients/server.client.ts"],
+        "runtimeArgs": [
+          "--nolazy",
+          "-r",
+          "ts-node/register",
+          "-r",
+          "tsconfig-paths/register"
+        ],
+        "sourceMaps": true,
+        "cwd": "${workspaceFolder}",
+        "outputCapture": "std",
+        "envFile": "${workspaceFolder}/local.env"
+      }
   ]
 }

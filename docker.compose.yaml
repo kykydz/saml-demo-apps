@@ -1,0 +1,28 @@
+version: '3'
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+    command: node dist/app-clients/server.client.js
+    restart: always
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+    command: node dist/app-space/server.js
+    depends_on:
+      - client
+    restart: always
