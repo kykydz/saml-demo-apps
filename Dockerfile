@@ -7,5 +7,6 @@ RUN npm run build
 
 FROM node:16-alpine
 WORKDIR /app
+COPY saml/mock-saml-creds/. .
 COPY --from=build /app/dist ./dist
 EXPOSE 3005 3006

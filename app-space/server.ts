@@ -6,11 +6,11 @@ import { AuthSamlStrategy } from '../saml/saml.strategy';
 import session from 'express-session';
 
 // IdP acgnostic
-const MY_PRIVATE_KEY = fs.readFileSync('./private-key.pem', 'utf-8');
+const MY_PRIVATE_KEY = fs.readFileSync('./dummy-priv-key', 'utf-8');
 const MY_2_ISSUER_ID = 'http://localhost';
 
 // Example using https://mocksaml.com/
-const IDP_CERT_MOCK_SAML = fs.readFileSync('idp_cert.pem', 'utf-8');
+const IDP_CERT_MOCK_SAML = fs.readFileSync('idp-cert-mock-sample', 'utf-8');
 const ENTRY_MOCK_SAML = 'https://mocksaml.com/api/saml/sso';
 
 // Example using Microsoft Entra ID
