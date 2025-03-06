@@ -6,28 +6,46 @@ import { AuthSamlStrategy } from '../saml/saml.strategy';
 import session from 'express-session';
 
 // IdP acgnostic
-const MY_PRIVATE_KEY = fs.readFileSync('./dummy-priv-key', 'utf-8');
-const MY_2_ISSUER_ID = 'http://localhost';
+// const MY_PRIVATE_KEY = fs.readFileSync('./dummy-priv-key', 'utf-8');
+// const MY_2_ISSUER_ID = 'http://localhost';
 
 // Example using https://mocksaml.com/
-const IDP_CERT_MOCK_SAML = fs.readFileSync('idp-cert-mock-sample', 'utf-8');
-const ENTRY_MOCK_SAML = 'https://mocksaml.com/api/saml/sso';
+// const IDP_CERT = fs.readFileSync('idp-cert-mock-sample', 'utf-8');
+// const ENTRY_POINT = 'https://mocksaml.com/api/saml/sso';
 
-// Example using Microsoft Entra ID
-// const MY_2_ENTRY_POINT = 'https://login.microsoftonline.com/b2d1e7ea-1e49-484c-9d88-2ce66d74b426/saml2';
-// const MY_2_IDP_CERT = fs.readFileSync('./test-saml-apps.pem', 'utf-8');
+// Personal Microsoft Entra ID
+// const LOCAL_HOST = 'http://localhost:3000';
+// const ISSUER_ID = 'http://localhost';
+// const MY_PRIVATE_KEY = fs.readFileSync('./komunal_private_key.pem', 'utf-8');
+// const ENTRY_POINT = 'https://login.microsoftonline.com/b2d1e7ea-1e49-484c-9d88-2ce66d74b426/saml2';
+// const IDP_CERT = fs.readFileSync('./test-saml-apps_3.pem', 'utf-8');
+
+/***
+ * Error:
+ * 1. Error: Invalid document signature at SAML.validatePostResponseAsync => wrong IdP cert
+ * 2. Error: TypeError: keyInfo is not in PEM format or in base64 format =>
+ * 3. AADSTS76023: The signature of the received authentication request is invalid, please contact the administrator to resolve the issue. => wrong private key
+ */
+
+// Microsoft Komunal
+const LOCAL_HOST = 'http://localhost:3000';
+// const LOCAL_HOST = 'https://8cec-36-73-120-110.ngrok-free.app';
+const ISSUER_ID = 'https://staging-apps.komunalgroup.com';
+const MY_PRIVATE_KEY = fs.readFileSync('./komunal_private_key.pem', 'utf-8');
+const ENTRY_POINT = 'https://login.microsoftonline.com/8b5d6ca5-b3b7-4000-acfc-4af0884a87b1/saml2';
+const IDP_CERT = fs.readFileSync('./Staging-KomunalGroup-fromraw.pem', 'utf-8');
 
 const DEFAULT_OPTIONS = {
-  issuer: MY_2_ISSUER_ID,
-  callbackUrl: 'http://localhost:3005/auth-saml/callback',
-  entryPoint: ENTRY_MOCK_SAML,
+  issuer: ISSUER_ID,
+  callbackUrl: LOCAL_HOST + '/assertion/callback',
+  entryPoint: ENTRY_POINT,
   wantAssertionsSigned: true,
-  idpCert: IDP_CERT_MOCK_SAML,
+  idpCert: IDP_CERT,
   privateKey: MY_PRIVATE_KEY,
   decryptionPvk: MY_PRIVATE_KEY,
   signatureAlgorithm: 'sha256',
   digestAlgorithm: 'sha256',
-  wantAuthnResponseSigned: true,
+  wantAuthnResponseSigned: false,
   passReqToCallback: true,
 } as SamlAuthOptions;
 
@@ -83,6 +101,7 @@ app.get('/',
         <title>Welcome to Client Apps</title>
       </head>
       <body>
+        <pre><code>${JSON.stringify(req.user, null, 2)}</code></pre>
         <h1>Welcome to Client Apps</h1>
         <ul>
           <li><a href="http://localhost:3006/client-apps-x/login?accessToken=${token}">App Space FE</a></li>
@@ -98,7 +117,7 @@ app.get('/',
 
 app.get('/auth-saml/login', passport.authenticate('saml'));
 
-app.post('/auth-saml/callback',
+app.post('/assertion/callback',
   passport.authenticate('saml', {
   failureRedirect: '/error',
 }), 
@@ -110,6 +129,6 @@ app.get('/error', (req: Request, res: Response) => {
   res.send('Error occurred when authenticating with SAML');
 });
 
-app.listen(3005, () => {
-  console.log('Server listening on port 3005');
+app.listen(3000, () => {
+  console.log('Server listening on port 3000');
 });
